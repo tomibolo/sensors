@@ -22,7 +22,7 @@ Single record
 }
 ```
 
-Multiple records
+WIP - Multiple records
 ```
 {
     "data": [
@@ -52,4 +52,33 @@ Multiple records
         }
     ]
 }
+```
+or
+```
+[
+    {
+        "master_id": "SENSORMASTER1",
+		"sensornode_id": "2",
+		"contactsensor_state": "Low",
+		"battery_voltage": "4.63"
+    },
+    {
+        "master_id": "SENSORMASTER1",
+		"sensornode_id": "3",
+		"contactsensor_state": "High",
+		"battery_voltage": "4.62"
+    },
+    {
+        "master_id": "SENSORMASTER1",
+		"sensornode_id": "4",
+		"contactsensor_state": "Low",
+		"battery_voltage": "4.61"
+    },
+    {
+        "master_id": "SENSORMASTER1",
+		"sensornode_id": "5",
+		"contactsensor_state": "High",
+		"battery_voltage": "4.60"
+    }
+]
 ```
