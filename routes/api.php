@@ -31,3 +31,6 @@ Route::put('sensor', 'SensorController@store');
 
 // Delete sensor
 Route::delete('sensor/{id}', 'SensorController@destroy');
+
+// Create Many Sensors
+Route::post('sensors/createMany', 'SensorController@storeMany');
