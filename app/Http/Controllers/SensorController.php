@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Sensor;
 use App\Http\Resources\Sensor as SensorResource;
+use  App\Http\Requests\SensorMassiveRequest;
+use DB;
 
 class SensorController extends Controller
 {
@@ -40,28 +42,15 @@ class SensorController extends Controller
      */
     public function store(Request $request)
     {
-        $input = $request->all();
-        $data = data_get($input, 'data' ,[]);
-        $ids = [];
-        foreach ($data as $key => $row) {
-          $sensor_id = data_get($row, 'sensor_id');
-          $master_id = data_get($row, 'master_id');
-          $sensornode_id = data_get($row, 'sensornode_id');
-          $contactsensor_state = data_get($row, 'contactsensor_state');
-          $battery_voltage = data_get($row, 'battery_voltage');
-          $sensor = $request->isMethod('put') ? Sensor::findOrFail($sensor_id) : new Sensor;
-          $sensor->id = $sensor_id;
-          $sensor->master_id = $master_id;
-          $sensor->sensornode_id = $sensornode_id;
-          $sensor->contactsensor_state = $contactsensor_state;
-          $sensor->battery_voltage = $battery_voltage;
-          if($sensor->save()) {
-              $ids[] = $sensor->id;
-          }
+        $sensor = $request->isMethod('put') ? Sensor::findOrFail($request->sensor_id) : new Sensor;
+        $sensor->id = $request->input('sensor_id');
+        $sensor->master_id = $request->input('master_id');
+        $sensor->sensornode_id = $request->input('sensornode_id');
+        $sensor->contactsensor_state = $request->input('contactsensor_state');
+        $sensor->battery_voltage = $request->input('battery_voltage');
+        if($sensor->save()) {
+            return new SensorResource($sensor);
         }
-        $sensors = Sensor::whereIn('id', $ids)->get();
-        // Return collection of sensors as a resource
-        return SensorResource::collection($sensors);
     }
 
     /**
@@ -116,5 +105,31 @@ class SensorController extends Controller
         if($sensor->delete()) {
             return new SensorResource($sensor);
         }  
+    }
+
+    /**
+     * Store many resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function storeMany(SensorMassiveRequest $request)
+    {
+        try 
+        {
+            DB::beginTransaction();
+            
+            $sensors = Sensor::insert($request->data);
+            
+            DB::commit();
+
+            return response()->json(['status' => 'ok']);
+
+        } catch (\Exception $e) 
+        {
+            DB::rollBack();
+            
+            return response()->json(['status' => 'error']);
+        }
     }
 }
