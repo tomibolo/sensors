@@ -40,15 +40,28 @@ class SensorController extends Controller
      */
     public function store(Request $request)
     {
-        $sensor = $request->isMethod('put') ? Sensor::findOrFail($request->sensor_id) : new Sensor;
-        $sensor->id = $request->input('sensor_id');
-        $sensor->master_id = $request->input('master_id');
-        $sensor->sensornode_id = $request->input('sensornode_id');
-        $sensor->contactsensor_state = $request->input('contactsensor_state');
-        $sensor->battery_voltage = $request->input('battery_voltage');
-        if($sensor->save()) {
-            return new SensorResource($sensor);
+        $input = $request->all();
+        $data = data_get($input, 'data' ,[]);
+        $ids = [];
+        foreach ($data as $key => $row) {
+          $sensor_id = data_get($row, 'sensor_id');
+          $master_id = data_get($row, 'master_id');
+          $sensornode_id = data_get($row, 'sensornode_id');
+          $contactsensor_state = data_get($row, 'contactsensor_state');
+          $battery_voltage = data_get($row, 'battery_voltage');
+          $sensor = $request->isMethod('put') ? Sensor::findOrFail($sensor_id) : new Sensor;
+          $sensor->id = $sensor_id;
+          $sensor->master_id = $master_id;
+          $sensor->sensornode_id = $sensornode_id;
+          $sensor->contactsensor_state = $contactsensor_state;
+          $sensor->battery_voltage = $battery_voltage;
+          if($sensor->save()) {
+              $ids[] = $sensor->id;
+          }
         }
+        $sensors = Sensor::whereIn('id', $ids)->get();
+        // Return collection of sensors as a resource
+        return SensorResource::collection($sensors);
     }
 
     /**
