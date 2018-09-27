@@ -11,6 +11,13 @@ use DB;
 
 class SensorController extends Controller
 {
+    private $sensor;
+
+    public function __construct(Sensor $sensor)
+    {
+        $this->sensor = $sensor;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -119,7 +126,7 @@ class SensorController extends Controller
         {
             DB::beginTransaction();
             
-            $sensors = Sensor::insert($request->data);
+            $sensors = Sensor::insert($this->sensor->setCustomTimeStamps($request->data));
             
             DB::commit();
 
