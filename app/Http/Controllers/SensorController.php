@@ -16,6 +16,8 @@ class SensorController extends Controller
     public function __construct(Sensor $sensor)
     {
         $this->sensor = $sensor;
+        
+        $this->middleware('auth:api');
     }
 
     /**
